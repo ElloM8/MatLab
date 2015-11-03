@@ -1,0 +1,96 @@
+function platformerBase
+%setup
+%close all; clear all; clc; 
+
+%setup graphic
+gameFigure = figure; 
+gameAxes = axes('parent', gameFigure); 
+
+axis(gameAxes, [-10, 10, 0, 20]); 
+
+
+player.pos = [0, 0]; 
+player.vel = [0, 0]; 
+player.ext = [.5, .5]; 
+player.box = line(); 
+gravity = [0,  0 ]; 
+
+
+
+%add objects to stand
+platforms= {}; 
+floor.pos = [0, 0]; 
+floor.ext = [-10, .1]; 
+floor.box = line(); 
+ceiling.pos = [0, 15]; 
+ceiling.ext = [-10, 1]; 
+ceiling.box = line(); 
+platforms{end+1} = floor; 
+
+%time calibration
+t = tic; 
+lastTime = toc(t); 
+
+
+
+while (true)
+    currentTime = toc(t); 
+    deltaTime = currentTime-lastTime; 
+    lastTime = currentTime; 
+    
+    
+    
+    player.pos = player.pos+player.vel*deltaTime+.5*deltaTime*deltaTime*gravity;
+    player.vel = player.vel+gravity*deltaTime; 
+    
+    %check if player hit anything. 
+    for (ii = 1:length(platforms))
+        intersection = objectObjectIntersection(player, platforms{ii}.ext); 
+        if (intersection == true)
+            
+            disp('intersection'); 
+        end
+        
+    end
+    
+    %draw things
+    drawObject(player, gameAxes); 
+    
+    
+    for (ii = 1:length(platforms))
+        drawObject(platforms{ii}, gameAxes); 
+    end
+    
+        
+        
+    
+    drawnow; 
+end
+end
+
+
+
+function drawObject(object, gameAxes)
+%player has box. 
+axes(gameAxes); 
+px = object.pos(1); 
+py = object.pos(2); 
+ex = object.ext(1); 
+ey = object.ext(2); 
+
+x_data = [px+ex, px-ex, px-ex, px+ex, px+ex]; 
+y_data = [py+ey, py+ey, py-ey, py-ey, py+ey]; 
+set(object.box, 'XData', x_data, 'YData', y_data); 
+
+
+
+end
+
+function intersects =  objectObjectIntersection(o1, o2)
+intersects = 0; 
+between = abs(o1.pos-o2.pos); 
+
+if (between (1) < (o1.ext(1)+o2.ext(1))) && between(2) < (o2.ext(2) + o2.ext(2))
+    intersects = true; 
+end
+end
